@@ -1,26 +1,23 @@
-#!/usr/bin / env node
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-import { printNotes, addNote, delNote } from "./notes-controller.js";
+import http from "node:http";
+import chalk from "chalk";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-yargs(hideBin(process.argv))
-  .command(
-    "add",
-    "Add new note to list",
-    { title: { type: "string", describe: "Note title", demandOption: true } },
-    async ({ title }) => {
-      await addNote(title);
-    }
-  )
-  .command("list", "Print all notes", async (argv) => {
-    await printNotes();
-  })
-  .command(
-    "remove",
-    "Remove a note by id",
-    { id: { type: "string", describe: "Title id", demandOption: true } },
-    async ({ id }) => {
-      await delNote(id);
-    }
-  )
-  .parse();
+const port = 4000;
+const indexPath = path.join(path.resolve(), "/pages/index.html");
+
+const getIndex = async () => {
+  return await fs.readFile(indexPath);
+};
+
+const server = http.createServer(async (req, res) => {
+  if (req.method === "GET") {
+    const index = await getIndex();
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(index);
+  }
+});
+
+server.listen(port, () => {
+  console.log(chalk.green(`server is running on port ${port}`));
+});
