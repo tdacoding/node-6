@@ -19,6 +19,18 @@ export const addNote = async (title) => {
   console.log(chalk.green("Note was added!"));
 };
 
+export const updateNote = async (noteId, newTitle) => {
+  const data = await getNotes();
+  const updatedData = data.map(({ id, title }) =>
+    id !== noteId ? { id, title } : { id, title: newTitle }
+  );
+
+  const jsonData = JSON.stringify(updatedData);
+  await fs.writeFile(notesPath, jsonData);
+  console.log(chalk.green("Note was updated!"));
+  return;
+};
+
 export const delNote = async (noteId) => {
   const data = await getNotes();
   const updatedData = data.filter(({ id }) => id !== noteId);
@@ -27,7 +39,7 @@ export const delNote = async (noteId) => {
   console.log(chalk.green("Note was removed!"));
 };
 
-const getNotes = async () => {
+export const getNotes = async () => {
   return await fs.readFile(notesPath).then((data) => JSON.parse(data));
 };
 

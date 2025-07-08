@@ -1,23 +1,61 @@
-import http from "node:http";
 import chalk from "chalk";
-import fs from "node:fs/promises";
+import { addNote, getNotes, delNote, updateNote } from "./notes-controller.js";
+import express from "express";
 import path from "node:path";
 
+const app = express();
 const port = 4000;
-const indexPath = path.join(path.resolve(), "/pages/index.html");
+const publicPath = path.join(path.resolve(), "public");
 
-const getIndex = async () => {
-  return await fs.readFile(indexPath);
-};
+app.set("view engine", "ejs");
+app.set("views", "pages");
 
-const server = http.createServer(async (req, res) => {
-  if (req.method === "GET") {
-    const index = await getIndex();
-    res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(index);
-  }
+app.use(express.static(publicPath));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.get("/", async (req, res) => {
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+    deleted: false,
+  });
 });
 
-server.listen(port, () => {
+app.post("/", async (req, res) => {
+  await addNote(req.body.title);
+
+  res.render("index.ejs", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: true,
+    deleted: false,
+  });
+});
+
+app.delete("/:id", async (req, res) => {
+  await delNote(req.params.id);
+  res.render("index.ejs", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+    deleted: true,
+  });
+});
+
+app.put("/", async (req, res) => {
+  const { id, newTitle } = req.body;
+
+  await updateNote(id, newTitle);
+  res.render("index.ejs", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+    deleted: false,
+  });
+});
+
+app.listen(port, () => {
   console.log(chalk.green(`server is running on port ${port}`));
 });
