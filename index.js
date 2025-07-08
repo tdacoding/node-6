@@ -1,58 +1,48 @@
 import chalk from "chalk";
 import { addNote, getNotes, delNote, updateNote } from "./notes-controller.js";
 import express from "express";
-import path from "node:path";
+import path from "path";
 
 const app = express();
 const port = 4000;
-const publicPath = path.join(path.resolve(), "public");
 
-app.set("view engine", "ejs");
-app.set("views", "pages");
-
-app.use(express.static(publicPath));
+app.use(express.static(path.join(path.resolve(), "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.set("view engine", "ejs");
+app.set("views", path.join(path.resolve(), "pages"));
+
 app.get("/", async (req, res) => {
   res.render("index", {
-    title: "Express App",
     notes: await getNotes(),
-    created: false,
-    deleted: false,
+    flag: false,
   });
 });
 
 app.post("/", async (req, res) => {
   await addNote(req.body.title);
 
-  res.render("index.ejs", {
-    title: "Express App",
+  res.render("index", {
     notes: await getNotes(),
-    created: true,
-    deleted: false,
+    flag: "created",
   });
 });
 
 app.delete("/:id", async (req, res) => {
   await delNote(req.params.id);
-  res.render("index.ejs", {
-    title: "Express App",
+  res.render("index", {
     notes: await getNotes(),
-    created: false,
-    deleted: true,
+    flag: "deleted",
   });
 });
 
 app.put("/", async (req, res) => {
   const { id, newTitle } = req.body;
-
   await updateNote(id, newTitle);
-  res.render("index.ejs", {
-    title: "Express App",
+  res.render("index", {
     notes: await getNotes(),
-    created: false,
-    deleted: false,
+    flag: "edited",
   });
 });
 

@@ -1,8 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
-import { log } from "node:console";
-import { title } from "node:process";
 
 const notesPath = path.join(path.resolve(), "db.json");
 
