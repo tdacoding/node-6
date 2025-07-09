@@ -1,16 +1,20 @@
-document.addEventListener("click", async (event) => {
+document.addEventListener("click", (event) => {
   if (event.target.dataset.type === "remove") {
     const id = event.target.dataset.id;
-    const data = await remove(id);
-    const html = await data.text();
-    document.documentElement.innerHTML = html;
+    remove(id)
+      .then((data) => data.text())
+      .then((html) => {
+        document.documentElement.innerHTML = html;
+      });
   } else if (event.target.dataset.type === "edit") {
     const newTitle = prompt("Enter the new title");
     if (newTitle) {
       const id = event.target.dataset.id;
-      const data = await update(id, newTitle);
-      const html = await data.text();
-      document.documentElement.innerHTML = html;
+      update(id, newTitle)
+        .then((data) => data.text())
+        .then((html) => {
+          document.documentElement.innerHTML = html;
+        });
     }
   }
 });
@@ -18,9 +22,11 @@ document.addEventListener("click", async (event) => {
 document.addEventListener("submit", async (event) => {
   event.preventDefault();
   const title = document.getElementById("title").value;
-  const data = await add(title);
-  const html = await data.text();
-  document.documentElement.innerHTML = html;
+  add(title)
+    .then((data) => data.text())
+    .then((html) => {
+      document.documentElement.innerHTML = html;
+    });
   document.getElementById("title").value = "";
 });
 
