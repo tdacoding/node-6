@@ -3,7 +3,7 @@ import { addNote, getNotes, delNote, updateNote } from "./notes-controller.js";
 import express from "express";
 import path from "path";
 import mongoose from "mongoose";
-import { Note } from "./models/Note.js";
+import { addUser } from "./users-controller.js";
 
 const app = express();
 const port = 4000;
@@ -19,7 +19,21 @@ app.get("/", async (req, res) => {
   res.render("index", {
     notes: await getNotes(),
     flag: false,
-    error: false,
+    error: undefined,
+  });
+});
+
+app.get("/register", async (req, res) => {
+  res.render("register", {
+    title: "Registration",
+    error: undefined,
+  });
+});
+
+app.get("/login", async (req, res) => {
+  res.render("login", {
+    title: "Authorization",
+    error: undefined,
   });
 });
 
@@ -30,7 +44,7 @@ app.post("/", async (req, res) => {
     res.render("index", {
       notes: await getNotes(),
       flag: "created",
-      error: false,
+      error: undefined,
     });
   } catch (error) {
     console.error("Creation error", error);
@@ -42,6 +56,19 @@ app.post("/", async (req, res) => {
   }
 });
 
+app.post("/register", async (req, res) => {
+  try {
+    await addUser(req.body.email, req.body.password);
+    res.redirect("/login");
+  } catch (error) {
+    console.error("Registration error", error);
+    res.render("register", {
+      title: "Registration",
+      error: error.message,
+    });
+  }
+});
+
 app.delete("/:id", async (req, res) => {
   try {
     await delNote(req.params.id);
@@ -49,7 +76,7 @@ app.delete("/:id", async (req, res) => {
     res.render("index", {
       notes: await getNotes(),
       flag: "deleted",
-      error: false,
+      error: undefined,
     });
   } catch (error) {
     console.error("Deleting error", error);
@@ -69,7 +96,7 @@ app.put("/", async (req, res) => {
     res.render("index", {
       notes: await getNotes(),
       flag: "edited",
-      error: false,
+      error: undefined,
     });
   } catch (error) {
     console.error("Editing error", error);

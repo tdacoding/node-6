@@ -10,4 +10,4 @@ node_modules
 .vscode/*
 !.vscode/extensions.json
 .idea
-
+db
