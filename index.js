@@ -1,10 +1,5 @@
 import chalk from "chalk";
-import {
-  addRequest,
-  getNotes,
-  delNote,
-  updateNote,
-} from "./request-controller.js";
+import { addRequest, getRequests } from "./request-controller.js";
 import express from "express";
 import path from "path";
 import mongoose from "mongoose";
@@ -46,6 +41,12 @@ app.post("/", async (req, res) => {
 });
 
 app.get("/login", async (req, res) => {
+  const token = req.cookies.token;
+  if (token) {
+    res.redirect("/requests");
+    return;
+  }
+
   res.render("login", {
     title: "Authorization",
     error: undefined,
@@ -56,11 +57,10 @@ app.post("/login", async (req, res) => {
   try {
     const token = await loginUser(req.body.email, req.body.password);
     res.cookie("token", token, { httpOnly: true });
-    res.redirect("/requsts");
+    res.render("requests", { requests: await getRequests(), error: undefined });
   } catch (error) {
     console.error("Login error", error);
     res.render("login", {
-      title: "Login",
       error: error.message,
     });
   }
@@ -75,7 +75,7 @@ app.use(auth);
 
 app.get("/requests", async (req, res) => {
   res.render("requests", {
-    title: "Requests",
+    requests: await getRequests(),
     error: undefined,
   });
 });

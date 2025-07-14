@@ -11,5 +11,6 @@ export const loginUser = async (email, password) => {
   if (!isPasswordCorrect) {
     throw new Error("Wrong password!");
   }
+
   return jwt.sign({ email }, JWT_SECRET, { expiresIn: "30d" });
 };

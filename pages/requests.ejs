@@ -13,54 +13,55 @@
   </head>
   <body>
     
-    <%if (userEmail) {%>
+ 
      <%-include('./partials/user-header')%> 
-     <%} else {%>
-      <%-include('./partials/guest-header')%>
-    <%}%>
-
-
-
-    <% if (flag) {%>
-      <div class="alert alert-success">
-        <%=`Note has been ${flag}!`%>
-      </div>
-     <% } %>
+  
     <% if (error) {%>
       <div class="alert alert-danger">
-        Something went wrong!
+        <%= error %>
       </div>
     <% } %>
 
     <div class="container">
-      <h1>Express App</h1>
-      <form id="newTitleForm"  class="mb-2">
-        <div class="form-group mb-2">
-          <input type="text" class="form-control" id="title" />
-        </div>
-        <button class="btn btn-primary" type="submit">Create</button>
-      </form>
+      <h1>Заявки с формы</h1>
 
-      <% if (notes.length>0) { %>
-      <div class="card">
-        <ul class="list-group">
-          <% for (let i=0; i<notes.length; i++ ) { %>
-            <li class="list-group-item d-flex justify-content-between align-items-center"><span><%= notes[i].title%></span><%= notes[i].owner%><span></span>
-              <%if (notes[i].owner===userEmail) {%>
-              <div>
-                <button class="btn btn-primary" data-type="edit" data-id="<%= notes[i].id%>">Edit</button>
-                <button class="btn btn-danger" data-type="remove" data-id="<%= notes[i].id%>">&times</button>
-              </div>
-              <% } %>
-          </li>
-          <% } %>
-        </ul>
-      </div>
+      <% if (requests.length>0) { %>
+        <div class="card">
+          <div class="card-body">
+            <table class="table">
+              <thead class="table-light">
+                <tr>
+                  <th class="w-10">Дата</th>
+                  <th class="w-25">ФИО</th>
+                  <th class="w-15">Телефон</th>
+                  <th class="w-50">Проблема</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for (let i=0; i<requests.length; i++ ) { %>
+                  <tr>
+                    <td>
+                      <%= requests[i].created_at %>
+                    </td>
+                    <td>
+                      <%= requests[i].name %>
+                    </td>
+                    <td>
+                      <%= requests[i].phone %>
+                    </td>
+                    <td>
+                      <%= requests[i].description %>
+                    </td>
+                  </tr>
+                  <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       <% } else { %>
-        <div class="card">No notes</div>
+        <div class="card">No requests</div>
       <% } %>
 
     </div>
-    <script src="/script.js" defer></script>
   </body>
 </html>
