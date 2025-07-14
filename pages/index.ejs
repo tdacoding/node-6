@@ -9,48 +9,51 @@
       integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
       crossorigin="anonymous"
     />
-    <title>Express App</title>
+    <title>Dream Clinic</title>
   </head>
   <body>
-    
-    <% if (flag) {%>
-      <div class="alert alert-success">
-        <%=`Note has been ${flag}!`%>
-      </div>
-     <% } %>
-    <% if (error) {%>
-      <div class="alert alert-danger">
-        Something went wrong!
-      </div>
+    <%-include('./partials/guest-header')%> <% if (error) {%>
+    <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
     <div class="container">
-      <h1>Express App</h1>
-      <form id="newTitleForm"  class="mb-2">
-        <div class="form-group mb-2">
-          <input type="text" class="form-control" id="title" />
+      <h1>Запись к врачу</h1>
+      <form id="newRequestForm" class="mb-2" action="/" method="post">
+        <div class="form-outline mb-4">
+          <label class="form-label" for="name">ФИО</label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Введите ФИО"
+            class="form-control form-control-lg"
+          />
         </div>
-        <button class="btn btn-primary" type="submit">Create</button>
+
+        <div class="form-outline mb-4">
+          <label class="form-label" for="phone">Номер телефона</label>
+          <input
+            type="text"
+            name="phone"
+            id="phone"
+            placeholder="Введите номер телефона в формате +79999999999"
+            class="form-control form-control-lg"
+          />
+        </div>
+
+        <div class="form-outline mb-4">
+          <label class="form-label" for="description"
+            >Опишите вашу проблему</label
+          >
+          <input
+            type="text"
+            name="description"
+            id="description"
+            class="form-control form-control-lg"
+          />
+        </div>
+        <button class="btn btn-primary" type="submit">Отправить</button>
       </form>
-
-      <% if (notes.length>0) { %>
-      <div class="card">
-        <ul class="list-group">
-          <% for (let i=0; i<notes.length; i++ ) { %>
-            <li class="list-group-item d-flex justify-content-between align-items-center"><%= notes[i].title%>
-              <div>
-                <button class="btn btn-primary" data-type="edit" data-id="<%= notes[i].id%>">Edit</button>
-                <button class="btn btn-danger" data-type="remove" data-id="<%= notes[i].id%>">&times</button>
-              </div>
-          </li>
-          <% } %>
-        </ul>
-      </div>
-      <% } else { %>
-        <div class="card">No notes</div>
-      <% } %>
-
     </div>
-    <script src="/script.js" defer></script>
   </body>
 </html>

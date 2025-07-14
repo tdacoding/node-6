@@ -1,10 +1,16 @@
 import chalk from "chalk";
-import { addNote, getNotes, delNote, updateNote } from "./notes-controller.js";
+import {
+  addRequest,
+  getNotes,
+  delNote,
+  updateNote,
+} from "./request-controller.js";
 import express from "express";
 import path from "path";
 import mongoose from "mongoose";
-import { addUser, loginUser } from "./users-controller.js";
+import { loginUser } from "./users-controller.js";
 import cookieParser from "cookie-parser";
+import { auth } from "./middlewares/auth.js";
 
 const app = express();
 const port = 4000;
@@ -19,17 +25,24 @@ app.set("views", path.join(path.resolve(), "pages"));
 
 app.get("/", async (req, res) => {
   res.render("index", {
-    notes: await getNotes(),
-    flag: false,
+    userEmail: undefined,
     error: undefined,
   });
 });
 
-app.get("/register", async (req, res) => {
-  res.render("register", {
-    title: "Registration",
-    error: undefined,
-  });
+app.post("/", async (req, res) => {
+  try {
+    await addRequest(req.body.name, req.body.phone, req.body.description);
+
+    res.render("index", {
+      error: undefined,
+    });
+  } catch (error) {
+    console.error("Creation error", error);
+    res.render("index", {
+      error: error.message,
+    });
+  }
 });
 
 app.get("/login", async (req, res) => {
@@ -39,50 +52,11 @@ app.get("/login", async (req, res) => {
   });
 });
 
-app.post("/", async (req, res) => {
-  try {
-    await addNote(req.body.title);
-
-    res.render("index", {
-      notes: await getNotes(),
-      flag: "created",
-      error: undefined,
-    });
-  } catch (error) {
-    console.error("Creation error", error);
-    res.render("index", {
-      notes: await getNotes(),
-      flag: false,
-      error: true,
-    });
-  }
-});
-
-app.post("/register", async (req, res) => {
-  try {
-    await addUser(req.body.email, req.body.password);
-    res.redirect("/login");
-  } catch (error) {
-    if (error.code === 11000) {
-      res.render("register", {
-        title: "Registration",
-        error: "This email is already registered",
-      });
-      return;
-    }
-    console.error("Registration error", error);
-    res.render("register", {
-      title: "Registration",
-      error: error.message,
-    });
-  }
-});
-
 app.post("/login", async (req, res) => {
   try {
     const token = await loginUser(req.body.email, req.body.password);
-    res.cookie("token", token);
-    res.redirect("/");
+    res.cookie("token", token, { httpOnly: true });
+    res.redirect("/requsts");
   } catch (error) {
     console.error("Login error", error);
     res.render("login", {
@@ -92,47 +66,22 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.delete("/:id", async (req, res) => {
-  try {
-    await delNote(req.params.id);
-
-    res.render("index", {
-      notes: await getNotes(),
-      flag: "deleted",
-      error: undefined,
-    });
-  } catch (error) {
-    console.error("Deleting error", error);
-    res.render("index", {
-      notes: await getNotes(),
-      flag: false,
-      error: true,
-    });
-  }
+app.get("/logout", async (req, res) => {
+  res.cookie("token", "", { httpOnly: true });
+  res.redirect("/login");
 });
 
-app.put("/", async (req, res) => {
-  try {
-    const { id, newTitle } = req.body;
-    await updateNote(id, newTitle);
+app.use(auth);
 
-    res.render("index", {
-      notes: await getNotes(),
-      flag: "edited",
-      error: undefined,
-    });
-  } catch (error) {
-    console.error("Editing error", error);
-    res.render("index", {
-      notes: await getNotes(),
-      flag: false,
-      error: true,
-    });
-  }
+app.get("/requests", async (req, res) => {
+  res.render("requests", {
+    title: "Requests",
+    error: undefined,
+  });
 });
 
 mongoose
-  .connect("mongodb://user:mongopass@localhost:27017/notes?authSource=admin")
+  .connect("mongodb://user:mongopass@localhost:27017/requests?authSource=admin")
   .then(() => {
     app.listen(port, () => {
       console.log(chalk.green(`server is running on port ${port}`));

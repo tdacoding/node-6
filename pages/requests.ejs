@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+      crossorigin="anonymous"
+    />
+    <title>Dream Clinic</title>
+  </head>
+  <body>
+    
+    <%if (userEmail) {%>
+     <%-include('./partials/user-header')%> 
+     <%} else {%>
+      <%-include('./partials/guest-header')%>
+    <%}%>
+
+
+
+    <% if (flag) {%>
+      <div class="alert alert-success">
+        <%=`Note has been ${flag}!`%>
+      </div>
+     <% } %>
+    <% if (error) {%>
+      <div class="alert alert-danger">
+        Something went wrong!
+      </div>
+    <% } %>
+
+    <div class="container">
+      <h1>Express App</h1>
+      <form id="newTitleForm"  class="mb-2">
+        <div class="form-group mb-2">
+          <input type="text" class="form-control" id="title" />
+        </div>
+        <button class="btn btn-primary" type="submit">Create</button>
+      </form>
+
+      <% if (notes.length>0) { %>
+      <div class="card">
+        <ul class="list-group">
+          <% for (let i=0; i<notes.length; i++ ) { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center"><span><%= notes[i].title%></span><%= notes[i].owner%><span></span>
+              <%if (notes[i].owner===userEmail) {%>
+              <div>
+                <button class="btn btn-primary" data-type="edit" data-id="<%= notes[i].id%>">Edit</button>
+                <button class="btn btn-danger" data-type="remove" data-id="<%= notes[i].id%>">&times</button>
+              </div>
+              <% } %>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+      <% } else { %>
+        <div class="card">No notes</div>
+      <% } %>
+
+    </div>
+    <script src="/script.js" defer></script>
+  </body>
+</html>
